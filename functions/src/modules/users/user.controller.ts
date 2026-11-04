@@ -1,33 +1,40 @@
 import type {Request, Response} from "express";
-import {userService} from "./user.service";
-import {
-  registerUserSchema,
-} from "./user.validation";
+import {getUserProfile, loginUser, registerUser} from "./user.service";
+import {loginUserSchema, registerUserSchema} from "./user.validation";
 
-class UserController {
-  async register(req: Request, res: Response): Promise<void> {
-    const input = registerUserSchema.parse(req.body);
+export const register = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const input = registerUserSchema.parse(req.body);
 
-    const user = await userService.register(input);
+  const user = await registerUser(input);
 
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      data: user,
-    });
-  }
+  res.successResponse(201, "User registered successfully", user);
+};
 
-  async profile(req: Request, res: Response): Promise<void> {
-    const uid = req.params.uid as string;
+export const profile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const uid = req.params.uid as string;
 
-    const user = await userService.getProfile(uid);
+  const user = await getUserProfile(uid);
 
-    res.status(200).json({
-      success: true,
-      message: "User profile fetched successfully",
-      data: user,
-    });
-  }
-}
+  res.successResponse(200, "User profile fetched successfully", user);
+};
 
-export const userController = new UserController();
+export const login = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const input = loginUserSchema.parse(req.body);
+
+  const result = await loginUser(input);
+
+  res.successResponse(200, "Login successful", {
+    user: result.user,
+    token: result.token,
+    refreshToken: result.refreshToken,
+  });
+};

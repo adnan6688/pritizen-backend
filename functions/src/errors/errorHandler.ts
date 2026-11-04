@@ -8,20 +8,13 @@ export const errorHandler = (
 ): void => {
   // Validation errors
   if (error instanceof ZodError) {
-    res.status(422).json({
-      success: false,
-      message: "Validation failed",
-      errors: error.flatten().fieldErrors,
-    });
+    res.errorResponse(422, "Validation failed", error.flatten().fieldErrors);
     return;
   }
 
   // Custom application errors
   if (error instanceof AppError) {
-    res.status(error.statusCode).json({
-      success: false,
-      message: error.message,
-    });
+    res.errorResponse(error.statusCode, error.message);
     return;
   }
 
@@ -34,26 +27,17 @@ export const errorHandler = (
     const code = String(error.code);
 
     if (code === "auth/email-already-exists") {
-      res.status(409).json({
-        success: false,
-        message: "Email already registered",
-      });
+      res.errorResponse(409, "Email already registered");
       return;
     }
 
     if (code === "auth/invalid-email") {
-      res.status(400).json({
-        success: false,
-        message: "Invalid email address",
-      });
+      res.errorResponse(400, "Invalid email address");
       return;
     }
 
     if (code === "auth/weak-password") {
-      res.status(422).json({
-        success: false,
-        message: "Password is too weak",
-      });
+      res.errorResponse(422, "Password is too weak");
       return;
     }
   }
@@ -61,8 +45,5 @@ export const errorHandler = (
   // Internal server error
   console.error("Unexpected error:", error);
 
-  res.status(500).json({
-    success: false,
-    message: "Internal server error",
-  });
+  res.errorResponse(500, "Internal server error");
 };

@@ -10,10 +10,7 @@ export const requireAuth = async (
     const authorization = req.headers.authorization;
 
     if (!authorization || !authorization.startsWith("Bearer ")) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
+      res.errorResponse(401, "Unauthorized");
       return;
     }
 
@@ -28,9 +25,6 @@ export const requireAuth = async (
 
     next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: error,
-    });
+    res.errorResponse(401, "Unauthorized", error);
   }
 };
