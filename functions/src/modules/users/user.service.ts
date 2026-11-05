@@ -3,7 +3,8 @@ import {auth} from "../../config/firebase";
 // eslint-disable-next-line import/no-named-as-default
 import env from "../../config/env";
 import {AppError} from "../../errors/AppError";
-import {LoginUserInput, RegisterUserInput} from "./user.validation";
+// eslint-disable-next-line max-len
+import {LoginUserInput, RegisterUserInput, UpdateUserProfileInput} from "./user.validation";
 import {UserModel} from "./user.model";
 import {userRepository} from "./user.repository";
 
@@ -63,6 +64,39 @@ export const getUserProfile = async (uid: string): Promise<UserModel> => {
   }
 
   return user;
+};
+
+export const updateUserProfile = async (
+  uid: string,
+  input: UpdateUserProfileInput
+): Promise<UserModel> => {
+  const user = await userRepository.findById(uid);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  const updates: Partial<UserModel> = {};
+
+  if (input.name !== undefined) {
+    updates.name = input.name.trim();
+  }
+
+  if (input.photoURL !== undefined) {
+    updates.photoURL = input.photoURL;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    throw new AppError("No valid fields to update", 400);
+  }
+
+  await userRepository.update(uid, updates);
+
+  return {
+    ...user,
+    ...updates,
+    updatedAt: Timestamp.now(),
+  };
 };
 
 export const loginUser = async (

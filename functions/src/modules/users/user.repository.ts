@@ -85,6 +85,13 @@ class UserRepository {
     uid: string,
     data: Partial<UserModel>
   ): Promise<void> {
+    const forbiddenKeys = ["email", "status", "emailVerified", "role"];
+    const invalidKeys = Object.keys(data).filter((key) => forbiddenKeys.includes(key));
+
+    if (invalidKeys.length > 0) {
+      throw new Error("FORBIDDEN_PROFILE_FIELDS");
+    }
+
     const userRef = this.users.doc(uid);
 
     await db.runTransaction(async (transaction) => {
@@ -92,12 +99,6 @@ class UserRepository {
 
       if (!userSnapshot.exists) {
         throw new Error("USER_NOT_FOUND");
-      }
-
-      const currentUser = userSnapshot.data() as UserModel;
-
-      if (data.email && data.email !== currentUser.email) {
-        throw new Error("EMAIL_UPDATE_NOT_SUPPORTED");
       }
 
       transaction.update(userRef, {

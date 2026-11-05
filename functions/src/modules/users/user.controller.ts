@@ -1,6 +1,8 @@
 import type {Request, Response} from "express";
-import {getUserProfile, loginUser, registerUser} from "./user.service";
-import {loginUserSchema, registerUserSchema} from "./user.validation";
+// eslint-disable-next-line max-len
+import {getUserProfile, loginUser, registerUser, updateUserProfile} from "./user.service";
+// eslint-disable-next-line max-len
+import {loginUserSchema, registerUserSchema, updateUserProfileSchema} from "./user.validation";
 
 export const register = async (
   req: Request,
@@ -22,6 +24,39 @@ export const profile = async (
   const user = await getUserProfile(uid);
 
   res.successResponse(200, "User profile fetched successfully", user);
+};
+
+export const me = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const uid = req.user?.uid;
+
+  if (!uid) {
+    res.errorResponse(401, "Unauthorized");
+    return;
+  }
+
+  const user = await getUserProfile(uid);
+
+  res.successResponse(200, "User profile fetched successfully", user);
+};
+
+export const updateProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const uid = req.user?.uid;
+
+  if (!uid) {
+    res.errorResponse(401, "Unauthorized");
+    return;
+  }
+
+  const input = updateUserProfileSchema.parse(req.body);
+  const user = await updateUserProfile(uid, input);
+
+  res.successResponse(200, "User profile updated successfully", user);
 };
 
 export const login = async (
