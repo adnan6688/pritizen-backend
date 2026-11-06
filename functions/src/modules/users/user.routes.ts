@@ -8,7 +8,7 @@ const router = new Router();
 router.post("/users/register", register);
 router.post("/users/login", login);
 router.get("/users/me", requireAuth, me);
-router.get("/users/:uid", requireAuth, profile);
+router.get("/users/profile", requireAuth, profile);
 router.patch("/users/profile", requireAuth, updateProfile);
 
 const userRoutes = async (
